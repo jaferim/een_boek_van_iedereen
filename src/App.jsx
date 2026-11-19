@@ -4,10 +4,13 @@ import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 const TOTAL_PAGES = 48;
-const COVER_DEPTH = 0.07;
+const COVER_DEPTH = 0.04;
 const PAGE_DEPTH = 0.005;
 const PAGE_WIDTH = 1;
 const PAGE_HEIGHT = 1.42;
+const SPINE_WIDTH = 0.24;
+const HINGE_RADIUS = 0.015;
+const COVER_TOTAL_WIDTH = PAGE_WIDTH * 2 + SPINE_WIDTH / 2;
 
 const PAPER_TEXTURE_PATHS = {
   map: "/textures/Paper001_4K-JPG/Paper001_4K_Color.jpg",
@@ -24,7 +27,7 @@ const COVER_TEXTURE_PATHS = {
 
 const COVER_COLOR = "#f6f6f6";
 
-const configureTexture = (texture, isColorMap) => {
+const configureTexture = (texture, isColorMap, repeatX = PAGE_WIDTH) => {
   if (isColorMap) {
     texture.colorSpace = THREE.SRGBColorSpace;
   }
@@ -34,10 +37,10 @@ const configureTexture = (texture, isColorMap) => {
   texture.minFilter = THREE.NearestFilter;
   texture.magFilter = THREE.NearestFilter;
 
-  // Match the 1 : 1.42 page aspect ratio so the square 1:1 texture doesn't stretch vertically
+  // Match the mesh aspect ratio so the square 1:1 texture doesn't stretch
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(PAGE_WIDTH, PAGE_HEIGHT);
+  texture.repeat.set(repeatX, PAGE_HEIGHT);
 
   texture.needsUpdate = true;
 };
@@ -47,7 +50,9 @@ const configurePaperTextures = (textures) => {
 };
 
 const configureCoverTextures = (textures) => {
-  textures.forEach((texture) => configureTexture(texture, false));
+  textures.forEach((texture) =>
+    configureTexture(texture, false, COVER_TOTAL_WIDTH),
+  );
 };
 
 /**
@@ -152,6 +157,112 @@ const Page = ({
   return <primitive ref={meshRef} object={mesh} rotation-y={rotationY} />;
 };
 
+/**
+ * Single continuous hardback cover (back cover + spine + front cover) using a 3-bone SkinnedMesh.
+ * A tight HINGE_RADIUS keeps the spine flat and boxy while creasing cleanly at both corners.
+ * - rightAngle / leftAngle: 0 = flat open, Math.PI / 2 = folded 90 deg closed
+ */
+const BookCover = ({
+  rightAngle = 0,
+  leftAngle = 0,
+  textures,
+  color = COVER_COLOR,
+}) => {
+  const meshRef = useRef(null);
+
+  const mesh = useMemo(() => {
+    const halfSpine = SPINE_WIDTH / 2;
+    const widthSegments = 160;
+    const geo = new THREE.BoxGeometry(
+      COVER_TOTAL_WIDTH,
+      PAGE_HEIGHT + 0.05,
+      COVER_DEPTH,
+      widthSegments,
+      1,
+      1,
+    );
+
+    // Shift backward by half thickness so the inner cover face stays flush at z = 0 behind pages
+    geo.translate(0, 0, -COVER_DEPTH / 2);
+
+    // 3-bone symmetric rig: stationary spine center, plus one hinge bone per cover edge
+    const boneCenter = new THREE.Bone();
+    const boneRight = new THREE.Bone();
+    const boneLeft = new THREE.Bone();
+
+    boneRight.position.set(halfSpine, 0, 0);
+    boneLeft.position.set(-halfSpine, 0, 0);
+    boneCenter.add(boneRight);
+    boneCenter.add(boneLeft);
+
+    const skeleton = new THREE.Skeleton([boneCenter, boneRight, boneLeft]);
+
+    const pos = geo.attributes.position;
+    const skinIndices = [];
+    const skinWeights = [];
+    const hingeStart = halfSpine - HINGE_RADIUS;
+    const hingeEnd = halfSpine + HINGE_RADIUS;
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const absX = Math.abs(x);
+      const sideBone = x >= 0 ? 1 : 2;
+
+      if (absX <= hingeStart) {
+        // Flat spine stays anchored to boneCenter (0)
+        skinIndices.push(0, 0, 0, 0);
+        skinWeights.push(1, 0, 0, 0);
+      } else if (absX < hingeEnd) {
+        // Tight crease transition across the hinge corner
+        const t = (absX - hingeStart) / (2 * HINGE_RADIUS);
+        skinIndices.push(0, sideBone, 0, 0);
+        skinWeights.push(1 - t, t, 0, 0);
+      } else {
+        // Rigid cover board follows its side bone completely
+        skinIndices.push(sideBone, 0, 0, 0);
+        skinWeights.push(1, 0, 0, 0);
+      }
+    }
+
+    geo.setAttribute(
+      "skinIndex",
+      new THREE.Uint16BufferAttribute(skinIndices, 4),
+    );
+    geo.setAttribute(
+      "skinWeight",
+      new THREE.Float32BufferAttribute(skinWeights, 4),
+    );
+
+    const mat = new THREE.MeshStandardMaterial({
+      ...textures,
+      color,
+      wireframe: false,
+    });
+    const skinnedMesh = new THREE.SkinnedMesh(geo, mat);
+    skinnedMesh.add(boneCenter);
+    skinnedMesh.bind(skeleton);
+
+    return skinnedMesh;
+  }, [textures, color]);
+
+  useEffect(() => {
+    return () => {
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+    };
+  }, [mesh]);
+
+  useEffect(() => {
+    const bones = meshRef.current?.skeleton?.bones;
+    if (!bones) return;
+
+    bones[1].rotation.y = -rightAngle;
+    bones[2].rotation.y = leftAngle;
+  }, [rightAngle, leftAngle]);
+
+  return <primitive ref={meshRef} object={mesh} />;
+};
+
 const Book = () => {
   // Load and configure paper & leather textures once for the whole book instead of per page
   const paperTextures = useTexture(PAPER_TEXTURE_PATHS, configurePaperTextures);
@@ -159,23 +270,26 @@ const Book = () => {
 
   return (
     <>
-      {/* Sample pages; outermost indices act as rigid, thicker hardback covers */}
+      {/* Continuous hardback cover with curved spine hinges (0 = flat open, Math.PI / 2 = closed) */}
+      <BookCover
+        rightAngle={0}
+        leftAngle={Math.PI / TOTAL_PAGES}
+        textures={coverTextures}
+        color={COVER_COLOR}
+      />
+      {/*         
+      rightAngle={1.5}
+      leftAngle={1.5} */}
+
+      {/* Inner pages (indices 1 .. TOTAL_PAGES - 2) */}
       {Array.from({ length: TOTAL_PAGES }).map((_, i) => {
         const isFirstCover = i === 0;
         const isLastCover = i === TOTAL_PAGES - 1;
-        const isCover = isFirstCover || isLastCover;
-
-        // (first cover faces +Z internally so moves -Z; last cover is rotated ~-PI so moves +Z locally)
-        const zOffset = isFirstCover
-          ? -COVER_DEPTH / 2
-          : isLastCover
-            ? COVER_DEPTH / 2
-            : 0;
+        if (isFirstCover || isLastCover) return null;
 
         const bendFactor = 0.2;
         const bend = i > TOTAL_PAGES / 2 ? -bendFactor : bendFactor;
 
-        const coverRotation = -(i * Math.PI) / TOTAL_PAGES;
         const rightSideRotation = -((i * Math.PI) / 2) / TOTAL_PAGES;
         const leftSideRotation =
           -((i * Math.PI) / 2) / (TOTAL_PAGES + 1) - Math.PI / 2;
@@ -185,12 +299,12 @@ const Book = () => {
         return (
           <Page
             key={i}
-            rotationY={isCover ? coverRotation : pageRotation}
-            depth={isCover ? COVER_DEPTH : PAGE_DEPTH}
-            bend={isCover ? 0 : bend}
-            zOffset={zOffset}
-            textures={isCover ? coverTextures : paperTextures}
-            color={isCover ? COVER_COLOR : "#ffffff"}
+            rotationY={pageRotation}
+            depth={PAGE_DEPTH}
+            bend={bend}
+            zOffset={0}
+            textures={paperTextures}
+            color="#ffffff"
           />
         );
       })}
