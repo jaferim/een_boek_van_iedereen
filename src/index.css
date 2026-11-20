@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "AVEstiana";
+  src: url("/fonts/av-estiana/AVEstiana-Regular-BF67761220bee90.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AVEstiana";
+  src: url("/fonts/av-estiana/AVEstiana-Oblique-BF67761220b3654.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AVEstiana";
+  src: url("/fonts/av-estiana/AVEstiana-Bold-BF677612208ac8d.otf")
+    format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
