@@ -8,7 +8,7 @@ import { Canvas } from "@react-three/fiber";
 import GUI from "lil-gui";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { BookSpreadHtml } from "./BookSpreadHtml";
+import { BookSpreadHtml } from "./Components/BookSpreadHtml";
 
 const TOTAL_PAGES = 48;
 const COVER_DEPTH = 0.04;
@@ -76,7 +76,7 @@ const Page = ({
   depth = PAGE_DEPTH,
   zOffset = 0,
   textures,
-  color = "#ffffff",
+  color = "#f6f6f6",
   faceSide = null,
   children = null,
 }) => {
@@ -189,6 +189,7 @@ const Page = ({
         <Html
           transform
           occlude
+          wrapperClass="mix-blend-multiply"
           distanceFactor={0.5}
           pointerEvents="none"
           position={[
@@ -360,7 +361,6 @@ const Book = ({
   openness = 1,
   pageBend = 0.25,
   coverColor = COVER_COLOR,
-  chapterTitle = "Hoofdstuk I",
   replayKey = 0,
 }) => {
   // Load and configure paper & leather textures once for the whole book instead of per page
@@ -446,13 +446,12 @@ const Book = ({
             bend2={bend2}
             zOffset={0}
             textures={paperTextures}
-            color="#ffffff"
+            color="#f6f6f6"
             faceSide={faceSide}
           >
             {isSpreadPage && (
               <BookSpreadHtml
                 side={isLeftSpread ? "left" : "right"}
-                chapterTitle={chapterTitle}
                 opacity={htmlOpacity}
                 replayKey={replayKey}
               />
@@ -469,14 +468,13 @@ const App = () => {
     openness: 1,
     pageBend: 0.25,
     coverColor: COVER_COLOR,
-    chapterTitle: "Hoofdstuk I",
     replayKey: 0,
-    envIntensity: 0.35,
+    envIntensity: 0.6,
     showHdriBg: false,
-    ambientIntensity: 0.05,
-    keyIntensity: 2.4,
-    fillIntensity: 3.5,
-    rimIntensity: 10,
+    ambientIntensity: 0,
+    keyIntensity: 1.9,
+    fillIntensity: 3.2,
+    rimIntensity: 4.5,
   });
 
   useEffect(() => {
@@ -485,7 +483,6 @@ const App = () => {
       openness: 1,
       pageBend: 0.25,
       coverColor: COVER_COLOR,
-      chapterTitle: "Hoofdstuk I",
       replayAnim: () =>
         setParams((prev) => ({ ...prev, replayKey: prev.replayKey + 1 })),
       envIntensity: 0.35,
@@ -508,7 +505,6 @@ const App = () => {
       .addColor(state, "coverColor")
       .name("Cover Color")
       .onChange(update);
-    bookFolder.add(state, "chapterTitle").name("Page Title").onChange(update);
     bookFolder.add(state, "replayAnim").name("Replay Anim");
 
     const lightFolder = gui.addFolder("Lighting");
@@ -540,10 +536,8 @@ const App = () => {
   return (
     <main className="w-screen h-screen">
       <Canvas shadows="soft" camera={{ position: [0, 1, 3] }}>
-        {/* Keep ambient minimal so HDRI + studio lights preserve deep crease shadows */}
         <ambientLight intensity={params.ambientIntensity} />
 
-        {/* Raking warm studio key light casting crisp shadows across page stacks & center crease */}
         <directionalLight
           position={[-2.6, 2.2, 1.8]}
           intensity={params.keyIntensity}
@@ -561,14 +555,12 @@ const App = () => {
           shadow-normalBias={0.008}
         />
 
-        {/* Soft cool studio fill on the opposite side to retain shadow detail without flattening */}
         <pointLight
           position={[2.6, 0.9, 2.0]}
           intensity={params.fillIntensity}
           color="#b8d0ff"
         />
 
-        {/* Back-top studio rim light to pick up the beveled cover rim and outer page edges */}
         <spotLight
           position={[0.5, 2.6, -2.4]}
           angle={0.65}
@@ -590,8 +582,6 @@ const App = () => {
             openness={params.openness}
             pageBend={params.pageBend}
             coverColor={params.coverColor}
-            chapterTitle={params.chapterTitle}
-            replayKey={params.replayKey}
           />
         </Suspense>
       </Canvas>

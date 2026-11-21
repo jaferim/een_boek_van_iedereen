@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "AVEstiana", Georgia, serif;
+  --font-estiana-normal: "AVEstiana Normal", Georgia, serif;
+  --font-estiana-medium: "AVEstiana Medium", Georgia, serif;
+  --font-estiana-black: "AVEstiana Black", Georgia, serif;
+
+  --text-xs: 1.25rem; /* 20px */
+  --text-sm: 1.5rem; /* 24px */
+  --text-base: 2rem; /* 32px */
+  --text-lg: 3.5rem; /* 56px */
+  --text-xl: 4rem; /* 64px */
+
+  --color-red: #e64c4c;
+  --color-blue: #4772e4;
+  --color-green: #379e62;
+  --color-gray-light: #cfcfcf;
+  --color-gray: #9e9e9e;
+  --color-gray-dark: #7d7d7d;
+  --color-text: #343434;
+  --color-bg: #f6f6f6;
+}
+
 @font-face {
   font-family: "AVEstiana";
   src: url("/fonts/av-estiana/AVEstiana-Regular-BF67761220bee90.otf")
@@ -11,18 +33,74 @@
 
 @font-face {
   font-family: "AVEstiana";
-  src: url("/fonts/av-estiana/AVEstiana-Oblique-BF67761220b3654.otf")
+  src: url("/fonts/av-estiana/AVEstiana-Medium-BF677612209558b.otf")
     format("opentype");
-  font-weight: 400;
-  font-style: italic;
+  font-weight: 500;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: "AVEstiana";
-  src: url("/fonts/av-estiana/AVEstiana-Bold-BF677612208ac8d.otf")
+  src: url("/fonts/av-estiana/AVEstiana-Black-BF6776121fde086.otf")
     format("opentype");
-  font-weight: 700;
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
+}
+
+@font-face {
+  font-family: "AVEstiana Normal";
+  src: url("/fonts/av-estiana/AVEstiana-Regular-BF67761220bee90.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AVEstiana Medium";
+  src: url("/fonts/av-estiana/AVEstiana-Medium-BF677612209558b.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AVEstiana Black";
+  src: url("/fonts/av-estiana/AVEstiana-Black-BF6776121fde086.otf")
+    format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: "AVEstiana", Georgia, serif;
+}
+
+@utility left-page-container {
+  @apply py-7 px-10 flex flex-col justify-between;
+}
+
+@utility book-annotation {
+  @apply text-gray text-xs whitespace-nowrap;
+}
+
+@utility annotation-wrapper {
+  @apply flex justify-between items-center gap-9;
+}
+
+@utility filled-row-p {
+  @apply text-sm text-gray-dark font-medium;
+}
+
+@utility slot-border {
+  border-style: solid;
+  border-width: 6px 20px;
+  border-image-source: url("/svg/slot-border.svg");
+  border-image-slice: 21 22;
+  border-image-width: 21px 22px;
+  border-image-repeat: stretch;
 }
