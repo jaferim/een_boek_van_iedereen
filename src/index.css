@@ -96,6 +96,10 @@ body {
   @apply text-sm text-gray-dark font-medium;
 }
 
+@utility active-row-p {
+  @apply text-base text-text font-black;
+}
+
 @utility slot-border {
   border-style: solid;
   border-width: 6px 20px;
