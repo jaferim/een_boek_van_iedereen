@@ -2,14 +2,14 @@ import { useId } from "react";
 import { useGSAP } from "@gsap/react";
 import LineDivider from "./svgs/LineDivider";
 import storyData, { badgeShapes } from "../utils/data";
+import useStoryStore from "../store/useStoryStore";
 
-export const BookSpreadHtml = ({
-  side,
-  opacity = 1,
-  rowStates = [],
-  onAdvanceRow,
-}) => {
+export const BookSpreadHtml = ({ side, opacity = 1 }) => {
   useGSAP(() => {});
+  const advanceRow = useStoryStore((state) => state.advanceRow);
+  const hasActiveRow = useStoryStore((state) =>
+    state.rowStates.includes("active"),
+  );
 
   const sharedStyle = {
     width: "800px",
@@ -38,7 +38,7 @@ export const BookSpreadHtml = ({
             ) => (
               <PageRow
                 key={type}
-                status={rowStates[index] ?? "incomplete"}
+                index={index}
                 icon={
                   Icon ? (
                     <Icon
@@ -66,8 +66,6 @@ export const BookSpreadHtml = ({
     );
   }
 
-  const hasActiveRow = rowStates.includes("active");
-
   return (
     <article
       style={sharedStyle}
@@ -75,7 +73,7 @@ export const BookSpreadHtml = ({
     >
       <button
         type="button"
-        onClick={onAdvanceRow}
+        onClick={advanceRow}
         className="pointer-events-auto cursor-pointer bg-red text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform"
       >
         {hasActiveRow ? "Next row" : "Reset"}
@@ -84,7 +82,11 @@ export const BookSpreadHtml = ({
   );
 };
 
-const PageRow = ({ status, icon, text, slotText, iconSize, type, shape }) => {
+const PageRow = ({ index, icon, text, slotText, iconSize, type, shape }) => {
+  const status = useStoryStore(
+    (state) => state.rowStates[index] ?? "incomplete",
+  );
+
   if (status === "active") {
     return <ActiveSlot text={text} shape={shape} />;
   }

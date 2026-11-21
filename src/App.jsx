@@ -9,7 +9,6 @@ import GUI from "lil-gui";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { BookSpreadHtml } from "./Components/BookSpreadHtml";
-import storyData from "./utils/data";
 
 const TOTAL_PAGES = 48;
 const COVER_DEPTH = 0.04;
@@ -358,30 +357,12 @@ const BookCover = ({
 
 const INNER_PAGE_COUNT = TOTAL_PAGES - 2;
 
-const createInitialRowStates = () =>
-  storyData.map((_, index) => (index === 0 ? "active" : "incomplete"));
-
 const Book = ({
   openness = 1,
   pageBend = 0.25,
   coverColor = COVER_COLOR,
   replayKey = 0,
 }) => {
-  const [rowStates, setRowStates] = useState(createInitialRowStates);
-
-  const handleAdvanceRow = () => {
-    setRowStates((prev) => {
-      const activeIdx = prev.indexOf("active");
-      if (activeIdx === -1) {
-        return createInitialRowStates();
-      }
-      return prev.map((status, index) => {
-        if (index === activeIdx) return "filled-in";
-        if (index === activeIdx + 1) return "active";
-        return status;
-      });
-    });
-  };
   // Load and configure paper & leather textures once for the whole book instead of per page
   const paperTextures = useTexture(PAPER_TEXTURE_PATHS, configurePaperTextures);
   const coverTextures = useTexture(COVER_TEXTURE_PATHS, configureCoverTextures);
@@ -473,8 +454,6 @@ const Book = ({
                 side={isLeftSpread ? "left" : "right"}
                 opacity={htmlOpacity}
                 replayKey={replayKey}
-                rowStates={rowStates}
-                onAdvanceRow={handleAdvanceRow}
               />
             )}
           </Page>
