@@ -61,58 +61,64 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
     );
   }
 
-  // return (
-  //   <div className="flex justify-between" style={sharedStyle}>
-  //     <div className="h-full w-auto grow bg-red"></div>
-  //     <div className="h-full w-auto grow bg-green"></div>
-  //     <div className="h-full w-auto grow bg-blue"></div>
-  //   </div>
-  // );
-
   return (
-    <article
-      style={sharedStyle}
-      className="py-7 px-10 flex flex-col items-center justify-center"
-    >
-      {hasActiveRow ? (
-        <div className="flex flex-col items-center gap-6">
-          <div className="flex gap-4">
-            {VOTE_BUTTONS.map(({ color, label, className }) => {
-              const isHovered = hoveredColor === color;
-              return (
-                <button
-                  key={color}
-                  type="button"
-                  onMouseEnter={() => hoverColor(color)}
-                  onClick={() => voteColor(color)}
-                  className={`pointer-events-auto cursor-pointer ${className} text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-all ${
-                    isHovered
-                      ? "scale-105 ring-4 ring-gray-dark shadow-md"
-                      : "opacity-85 hover:opacity-100"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-          {isCountingDown && (
-            <p className="text-xs font-semibold text-gray-dark tracking-wide uppercase">
-              Keuze over {countdown}s
-            </p>
-          )}
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={resetRows}
-          className="pointer-events-auto cursor-pointer bg-gray-dark text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform"
-        >
-          Reset
-        </button>
-      )}
-    </article>
+    <div className="flex justify-between gap-4" style={sharedStyle}>
+      <div className="vote-column stroke-red">
+        <div className="vote-progress h-1/2 bg-red"></div>
+      </div>
+      <div className="vote-column stroke-green">
+        <div className="vote-progress h-1/4 bg-green"></div>
+      </div>
+      <div className="vote-column stroke-blue">
+        <div className="vote-progress h-1/3 bg-blue"></div>
+      </div>
+    </div>
   );
+
+  // return (
+  //   <article
+  //     style={sharedStyle}
+  //     className="py-7 px-10 flex flex-col items-center justify-center"
+  //   >
+  //     {hasActiveRow ? (
+  //       <div className="flex flex-col items-center gap-6">
+  //         <div className="flex gap-4">
+  //           {VOTE_BUTTONS.map(({ color, label, className }) => {
+  //             const isHovered = hoveredColor === color;
+  //             return (
+  //               <button
+  //                 key={color}
+  //                 type="button"
+  //                 onMouseEnter={() => hoverColor(color)}
+  //                 onClick={() => voteColor(color)}
+  //                 className={`pointer-events-auto cursor-pointer ${className} text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-all ${
+  //                   isHovered
+  //                     ? "scale-105 ring-4 ring-gray-dark shadow-md"
+  //                     : "opacity-85 hover:opacity-100"
+  //                 }`}
+  //               >
+  //                 {label}
+  //               </button>
+  //             );
+  //           })}
+  //         </div>
+  //         {isCountingDown && (
+  //           <p className="text-xs font-semibold text-gray-dark tracking-wide uppercase">
+  //             Keuze over {countdown}s
+  //           </p>
+  //         )}
+  //       </div>
+  //     ) : (
+  //       <button
+  //         type="button"
+  //         onClick={resetRows}
+  //         className="pointer-events-auto cursor-pointer bg-gray-dark text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform"
+  //       >
+  //         Reset
+  //       </button>
+  //     )}
+  //   </article>
+  // );
 };
 
 const PageRow = ({ index, options, iconSize, type, shape }) => {
