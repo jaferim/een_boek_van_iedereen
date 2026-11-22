@@ -1,54 +1,283 @@
-import Dragon from "../Components/svgs/Dragon";
-import Forest from "../Components/svgs/Forest";
-import FallingMoon from "../Components/svgs/FallingMoon";
-import FlyingBike from "../Components/svgs/FlyingBike";
-import Stars from "../Components/svgs/Stars";
+import Dragon from "../Components/svgs/circle/red/Dragon";
+import Robot from "../Components/svgs/circle/red/Robot";
+import Knight from "../Components/svgs/circle/blue/Knight";
+import Witch from "../Components/svgs/circle/blue/Witch";
+import Pirate from "../Components/svgs/circle/green/Pirate";
+import Rabbit from "../Components/svgs/circle/green/Rabbit";
+
+import Forest from "../Components/svgs/square/green/Forest";
+import Bookshelf from "../Components/svgs/square/green/Bookshelf";
+import Moon from "../Components/svgs/square/blue/Moon";
+import Ocean from "../Components/svgs/square/blue/Ocean";
+import Castle from "../Components/svgs/square/red/Castle";
+import City from "../Components/svgs/square/red/City";
+
+import FallingMoon from "../Components/svgs/diamond/blue/FallingMoon";
+import Snowflake from "../Components/svgs/diamond/blue/Snowflake";
+import RainingCandy from "../Components/svgs/diamond/green/RainingCandy";
+import UnknownRoad from "../Components/svgs/diamond/green/UnknownRoad";
+import LettersGone from "../Components/svgs/diamond/red/LettersGone";
+import Music from "../Components/svgs/diamond/red/Music";
+
+import FlyingBike from "../Components/svgs/hexagon/red/FlyingBike";
+import Lantern from "../Components/svgs/hexagon/red/Lantern";
+import SpellBook from "../Components/svgs/hexagon/blue/SpellBook";
+import Umbrella from "../Components/svgs/hexagon/blue/Umbrella";
+import Key from "../Components/svgs/hexagon/green/Key";
+import Map from "../Components/svgs/hexagon/green/Map";
+
+import Stars from "../Components/svgs/long-rect/blue/Stars";
+import Sleep from "../Components/svgs/long-rect/blue/Sleep";
+import Home from "../Components/svgs/long-rect/green/Home";
+import QuestionMarks from "../Components/svgs/long-rect/green/QuestionMarks";
+import Hearts from "../Components/svgs/long-rect/red/Hearts";
+import Pen from "../Components/svgs/long-rect/red/Pen";
 
 export const storyData = [
   {
     type: "who",
     shape: "circle",
-    icon: Dragon,
     chosenIconSize: "h-14",
-    slotText: "een draak",
-    label: "draak",
-    text: "Er was eens",
+    options: [
+      {
+        icon: Dragon,
+        color: "var(--color-red)",
+        slotText: "een draak",
+        label: "draak",
+        text: "Er was eens",
+      },
+      {
+        icon: Robot,
+        color: "var(--color-red)",
+        slotText: "een robot",
+        label: "robot",
+        text: "Er was eens",
+      },
+      {
+        icon: Knight,
+        color: "var(--color-blue)",
+        slotText: "een ridder",
+        label: "ridder",
+        text: "Er was eens",
+      },
+      {
+        icon: Witch,
+        color: "var(--color-blue)",
+        slotText: "een heks",
+        label: "heks",
+        text: "Er was eens",
+      },
+      {
+        icon: Pirate,
+        color: "var(--color-green)",
+        slotText: "een piraat",
+        label: "piraat",
+        text: "Er was eens",
+      },
+      {
+        icon: Rabbit,
+        color: "var(--color-green)",
+        slotText: "een konijn",
+        label: "konijn",
+        text: "Er was eens",
+      },
+    ],
   },
   {
     type: "where",
     shape: "square",
-    icon: Forest,
     chosenIconSize: "h-13",
-    slotText: "een donker bos.",
-    label: "bos",
-    text: "In",
+    options: [
+      {
+        icon: Forest,
+        color: "var(--color-green)",
+        slotText: "een donker bos.",
+        label: "bos",
+        text: "In",
+      },
+      {
+        icon: Bookshelf,
+        color: "var(--color-green)",
+        slotText: "een oude bibliotheek.",
+        label: "boekenkast",
+        text: "In",
+      },
+      {
+        icon: Moon,
+        color: "var(--color-blue)",
+        slotText: "op de maan.",
+        label: "maan",
+        text: "Ver weg",
+      },
+      {
+        icon: Ocean,
+        color: "var(--color-blue)",
+        slotText: "een diepe oceaan.",
+        label: "oceaan",
+        text: "In",
+      },
+      {
+        icon: Castle,
+        color: "var(--color-red)",
+        slotText: "een groot kasteel.",
+        label: "kasteel",
+        text: "In",
+      },
+      {
+        icon: City,
+        color: "var(--color-red)",
+        slotText: "een drukke stad.",
+        label: "stad",
+        text: "In",
+      },
+    ],
   },
   {
     type: "what",
     shape: "diamond",
-    icon: FallingMoon,
     chosenIconSize: "h-17",
-    slotText: "viel de man uit de lucht.",
-    label: "vallende maan",
-    text: "Op een dag,",
+    options: [
+      {
+        icon: FallingMoon,
+        color: "var(--color-blue)",
+        slotText: "viel de man uit de lucht.",
+        label: "vallende maan",
+        text: "Op een dag,",
+      },
+      {
+        icon: Snowflake,
+        color: "var(--color-blue)",
+        slotText: "begon het plots te sneeuwen.",
+        label: "sneeuwvlok",
+        text: "Op een dag,",
+      },
+      {
+        icon: RainingCandy,
+        color: "var(--color-green)",
+        slotText: "regende het snoepjes.",
+        label: "snoepregen",
+        text: "Op een dag,",
+      },
+      {
+        icon: UnknownRoad,
+        color: "var(--color-green)",
+        slotText: "verscheen een geheim pad.",
+        label: "onbekend pad",
+        text: "Op een dag,",
+      },
+      {
+        icon: LettersGone,
+        color: "var(--color-red)",
+        slotText: "waren alle letters verdwenen.",
+        label: "letters weg",
+        text: "Op een dag,",
+      },
+      {
+        icon: Music,
+        color: "var(--color-red)",
+        slotText: "klonk er vrolijke muziek.",
+        label: "muziek",
+        text: "Op een dag,",
+      },
+    ],
   },
   {
     type: "with",
     shape: "hexagon",
-    icon: FlyingBike,
     chosenIconSize: "h-16.5 mt-1.5",
-    slotText: "een vliegende fiets",
-    label: "Vliegende Fiets",
-    text: "Gelukkig, was er",
+    options: [
+      {
+        icon: FlyingBike,
+        color: "var(--color-red)",
+        slotText: "een vliegende fiets",
+        label: "Vliegende Fiets",
+        text: "Gelukkig, was er",
+      },
+      {
+        icon: Lantern,
+        color: "var(--color-red)",
+        slotText: "een stralende lantaarn",
+        label: "Lantaarn",
+        text: "Gelukkig, was er",
+      },
+      {
+        icon: SpellBook,
+        color: "var(--color-blue)",
+        slotText: "een magisch toverboek",
+        label: "Toverboek",
+        text: "Gelukkig, was er",
+      },
+      {
+        icon: Umbrella,
+        color: "var(--color-blue)",
+        slotText: "een grote paraplu",
+        label: "Paraplu",
+        text: "Gelukkig, was er",
+      },
+      {
+        icon: Key,
+        color: "var(--color-green)",
+        slotText: "een gouden sleutel",
+        label: "Sleutel",
+        text: "Gelukkig, was er",
+      },
+      {
+        icon: Map,
+        color: "var(--color-green)",
+        slotText: "een schatkaart",
+        label: "Kaart",
+        text: "Gelukkig, was er",
+      },
+    ],
   },
   {
     type: "ending",
     shape: "long-rectangle",
-    icon: Stars,
     chosenIconSize: "h-17",
-    slotText: "en werd het feest tot diep in de nacht.",
-    label: "Feest",
-    text: "En toen kwam jij,",
+    options: [
+      {
+        icon: Stars,
+        color: "var(--color-blue)",
+        slotText: "en werd het feest tot diep in de nacht.",
+        label: "Feest",
+        text: "En toen kwam jij,",
+      },
+      {
+        icon: Sleep,
+        color: "var(--color-blue)",
+        slotText: "en viel iedereen heerlijk in slaap.",
+        label: "Slapen",
+        text: "En toen kwam jij,",
+      },
+      {
+        icon: Home,
+        color: "var(--color-green)",
+        slotText: "en keerde iedereen veilig naar huis.",
+        label: "Thuis",
+        text: "En toen kwam jij,",
+      },
+      {
+        icon: QuestionMarks,
+        color: "var(--color-green)",
+        slotText: "en begon een nieuw mysterie.",
+        label: "Vraagtekens",
+        text: "En toen kwam jij,",
+      },
+      {
+        icon: Hearts,
+        color: "var(--color-red)",
+        slotText: "en leefde iedereen nog lang en gelukkig.",
+        label: "Harten",
+        text: "En toen kwam jij,",
+      },
+      {
+        icon: Pen,
+        color: "var(--color-red)",
+        slotText: "en werd het verhaal verder geschreven.",
+        label: "Pen",
+        text: "En toen kwam jij,",
+      },
+    ],
   },
 ];
 

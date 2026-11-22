@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { useGSAP } from "@gsap/react";
-import LineDivider from "./svgs/LineDivider";
+import LineDivider from "./svgs/misc/LineDivider";
 import storyData, { badgeShapes } from "../utils/data";
 import useStoryStore from "../store/useStoryStore";
 
@@ -15,7 +15,6 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
     width: "800px",
     height: "1136px",
     opacity,
-    transition: "opacity 120ms linear",
     pointerEvents: "none",
   };
 
@@ -31,11 +30,10 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
           <LineDivider strokeColor={"stroke-gray"} />
         </header>
         <article className="h-3/4 flex flex-col gap-6">
-          {storyData.map(
-            (
-              { type, shape, icon: Icon, chosenIconSize, slotText, text },
-              index,
-            ) => (
+          {storyData.map(({ type, shape, chosenIconSize, options }, index) => {
+            const { icon: Icon, color, slotText, text } = options[1];
+
+            return (
               <PageRow
                 key={type}
                 index={index}
@@ -50,12 +48,13 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
                 }
                 type={type}
                 shape={shape}
+                color={color}
                 slotText={slotText}
                 text={text}
                 iconSize={chosenIconSize}
               />
-            ),
-          )}
+            );
+          })}
         </article>
         <footer className="annotation-wrapper">
           <h2 className="book-annotation">Het Boek van iedereen</h2>
@@ -82,13 +81,22 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
   );
 };
 
-const PageRow = ({ index, icon, text, slotText, iconSize, type, shape }) => {
+const PageRow = ({
+  index,
+  icon,
+  text,
+  slotText,
+  iconSize,
+  type,
+  shape,
+  color,
+}) => {
   const status = useStoryStore(
     (state) => state.rowStates[index] ?? "incomplete",
   );
 
   if (status === "active") {
-    return <ActiveSlot text={text} shape={shape} />;
+    return <ActiveSlot text={text} shape={shape} color={color} />;
   }
 
   const isIncomplete = status === "incomplete";
@@ -100,12 +108,7 @@ const PageRow = ({ index, icon, text, slotText, iconSize, type, shape }) => {
         className={`flex gap-3 items-center flex-wrap ${isIncomplete ? "invisible" : ""}`}
       >
         <p className="filled-row-p shrink-0">{text}</p>
-        <Slot
-          icon={icon}
-          type={type}
-          slotText={slotText}
-          iconSize={iconSize}
-        />
+        <Slot icon={icon} type={type} slotText={slotText} iconSize={iconSize} />
       </div>
       <LineDivider strokeColor={"stroke-gray-dark"} />
     </div>
@@ -131,7 +134,7 @@ const renderSvgShape = ({ tag: Tag, props }, extraProps = {}) => (
   <Tag {...props} {...extraProps} />
 );
 
-const ActiveSlot = ({ text, shape = "square" }) => {
+const ActiveSlot = ({ text, shape = "square", color = "var(--color-red)" }) => {
   const bannerClipId = useId();
   const badgeClipId = useId();
   const badgeShape =
@@ -162,16 +165,21 @@ const ActiveSlot = ({ text, shape = "square" }) => {
             className="absolute inset-0 w-full h-full pointer-events-none"
           >
             {renderSvgShape(badgeShape.stroke, {
+              stroke: color,
               strokeWidth: "6",
               vectorEffect: "non-scaling-stroke",
-              className: "stroke-red",
             })}
           </svg>
-          <p className="text-lg font-bold text-red relative z-1">10</p>
+          <p className="text-lg font-bold relative z-1" style={{ color }}>
+            10
+          </p>
         </div>
         <div
-          className="bg-red w-full -ml-12 flex items-center justify-center relative z-0"
-          style={{ clipPath: `url(#${bannerClipId})` }}
+          className="w-full -ml-12 flex items-center justify-center relative z-0"
+          style={{
+            backgroundColor: color,
+            clipPath: `url(#${bannerClipId})`,
+          }}
         >
           <p className="text-bg text-lg">...</p>
         </div>
