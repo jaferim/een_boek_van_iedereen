@@ -4,23 +4,48 @@ import LineDivider from "./svgs/misc/LineDivider";
 import storyData, { badgeShapes } from "../utils/data";
 import useStoryStore from "../store/useStoryStore";
 
-const VOTE_BUTTONS = [
-  { color: "var(--color-red)", label: "Red", className: "bg-red" },
-  { color: "var(--color-blue)", label: "Blue", className: "bg-blue" },
-  { color: "var(--color-green)", label: "Green", className: "bg-green" },
+const SHAPE_PROGRESS_TOP_CLASS = {
+  circle: "vote-progress-top-circle",
+  diamond: "vote-progress-top-diamond",
+  hexagon: "vote-progress-top-hexagon",
+};
+
+const VOTE_COLUMNS = [
+  {
+    key: "red",
+    strokeClass: "stroke-red",
+    bgClass: "bg-red",
+    label: "Vote Red",
+  },
+  {
+    key: "green",
+    strokeClass: "stroke-green",
+    bgClass: "bg-green",
+    label: "Vote Green",
+  },
+  {
+    key: "blue",
+    strokeClass: "stroke-blue",
+    bgClass: "bg-blue",
+    label: "Vote Blue",
+  },
 ];
 
 export const BookSpreadHtml = ({ side, opacity = 1 }) => {
   useGSAP(() => {});
-  const voteColor = useStoryStore((state) => state.voteColor);
-  const hoverColor = useStoryStore((state) => state.hoverColor);
+  const castVote = useStoryStore((state) => state.castVote);
   const resetRows = useStoryStore((state) => state.resetRows);
-  const hasActiveRow = useStoryStore((state) =>
-    state.rowStates.includes("active"),
+  const activeRowIndex = useStoryStore((state) =>
+    state.rowStates.indexOf("active"),
   );
-  const countdown = useStoryStore((state) => state.countdown);
-  const isCountingDown = useStoryStore((state) => state.isCountingDown);
-  const hoveredColor = useStoryStore((state) => state.hoveredColor);
+  const hasActiveRow = activeRowIndex !== -1;
+  const activeShape = hasActiveRow ? storyData[activeRowIndex]?.shape : null;
+  const progressShapeClass = SHAPE_PROGRESS_TOP_CLASS[activeShape] ?? "";
+  const columnOptionIndices = useStoryStore(
+    (state) => state.columnOptionIndices,
+  );
+  const votes = useStoryStore((state) => state.votes);
+  const totalVoters = useStoryStore((state) => state.totalVoters);
 
   const sharedStyle = {
     width: "800px",
@@ -62,63 +87,54 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
   }
 
   return (
-    <div className="flex justify-between gap-4" style={sharedStyle}>
-      <div className="vote-column stroke-red">
-        <div className="vote-progress h-1/2 bg-red"></div>
-      </div>
-      <div className="vote-column stroke-green">
-        <div className="vote-progress h-1/4 bg-green"></div>
-      </div>
-      <div className="vote-column stroke-blue">
-        <div className="vote-progress h-1/3 bg-blue"></div>
-      </div>
+    <div className="flex justify-between gap-4 relative" style={sharedStyle}>
+      {VOTE_COLUMNS.map(({ key, strokeClass, bgClass, label }) => {
+        const heightPercent =
+          totalVoters > 0 ? (votes[key] / totalVoters) * 100 : 20;
+        const activeOption =
+          hasActiveRow && storyData[activeRowIndex]?.options
+            ? storyData[activeRowIndex].options[columnOptionIndices[key]]
+            : null;
+        const ColumnIcon = activeOption?.progressIcon;
+
+        return (
+          <button
+            key={key}
+            type="button"
+            aria-label={label}
+            onClick={() => castVote(key)}
+            disabled={!hasActiveRow}
+            className={`vote-column ${strokeClass} p-2 border-0 bg-transparent ${
+              hasActiveRow ? "pointer-events-auto cursor-pointer" : ""
+            }`}
+          >
+            <div className="z-2 relative w-full">
+              {ColumnIcon && <ColumnIcon />}
+            </div>
+            <div className="vote-progress-track">
+              <div
+                className={`vote-progress ${progressShapeClass}`}
+                style={{ height: `${heightPercent}%` }}
+              >
+                <div className={`vote-progress-body ${bgClass}`} />
+              </div>
+            </div>
+          </button>
+        );
+      })}
+      {!hasActiveRow && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <button
+            type="button"
+            onClick={resetRows}
+            className="pointer-events-auto cursor-pointer bg-gray-dark text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform"
+          >
+            Reset
+          </button>
+        </div>
+      )}
     </div>
   );
-
-  // return (
-  //   <article
-  //     style={sharedStyle}
-  //     className="py-7 px-10 flex flex-col items-center justify-center"
-  //   >
-  //     {hasActiveRow ? (
-  //       <div className="flex flex-col items-center gap-6">
-  //         <div className="flex gap-4">
-  //           {VOTE_BUTTONS.map(({ color, label, className }) => {
-  //             const isHovered = hoveredColor === color;
-  //             return (
-  //               <button
-  //                 key={color}
-  //                 type="button"
-  //                 onMouseEnter={() => hoverColor(color)}
-  //                 onClick={() => voteColor(color)}
-  //                 className={`pointer-events-auto cursor-pointer ${className} text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-all ${
-  //                   isHovered
-  //                     ? "scale-105 ring-4 ring-gray-dark shadow-md"
-  //                     : "opacity-85 hover:opacity-100"
-  //                 }`}
-  //               >
-  //                 {label}
-  //               </button>
-  //             );
-  //           })}
-  //         </div>
-  //         {isCountingDown && (
-  //           <p className="text-xs font-semibold text-gray-dark tracking-wide uppercase">
-  //             Keuze over {countdown}s
-  //           </p>
-  //         )}
-  //       </div>
-  //     ) : (
-  //       <button
-  //         type="button"
-  //         onClick={resetRows}
-  //         className="pointer-events-auto cursor-pointer bg-gray-dark text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform"
-  //       >
-  //         Reset
-  //       </button>
-  //     )}
-  //   </article>
-  // );
 };
 
 const PageRow = ({ index, options, iconSize, type, shape }) => {
@@ -183,9 +199,10 @@ const Slot = ({ icon, slotText, iconSize, type }) => {
   );
 };
 
-const renderSvgShape = ({ tag: Tag, props }, extraProps = {}) => (
-  <Tag {...props} {...extraProps} />
-);
+const renderSvgShape = (
+  { tag: SvgElement, props: shapeProps },
+  additionalProps = {},
+) => <SvgElement {...shapeProps} {...additionalProps} />;
 
 const ActiveSlot = ({
   text,

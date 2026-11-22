@@ -101,15 +101,7 @@ body {
 }
 
 @utility vote-column {
-  @apply h-full w-auto grow relative overflow-hidden;
-  -webkit-mask-image: url("/svg/vote-column-masks/vote-column-mask.svg");
-  mask-image: url("/svg/vote-column-masks/vote-column-mask.svg");
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
+  @apply h-full w-auto grow relative flex flex-col items-start;
 
   &::after {
     content: "";
@@ -129,40 +121,79 @@ body {
   }
 }
 
+@utility vote-progress-track {
+  @apply absolute inset-0 z-0 overflow-hidden pointer-events-none;
+  -webkit-mask-image: url("/svg/vote-column-masks/vote-column-mask.svg");
+  mask-image: url("/svg/vote-column-masks/vote-column-mask.svg");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
 @utility vote-progress {
   --progress-top-size: 22px;
-  --progress-bottom-size: 99px;
   --progress-mask-top: url("/svg/vote-column-masks/vote-progress-mask-top.svg");
+  --progress-mask-mid: url("/svg/vote-column-masks/vote-progress-mask-mid.svg");
+
+  @apply absolute w-full top-0 left-0 overflow-hidden transition-[height] duration-150 ease-out;
+  -webkit-mask-image: var(--progress-mask-top), var(--progress-mask-mid);
+  mask-image: var(--progress-mask-top), var(--progress-mask-mid);
+  -webkit-mask-position:
+    top center,
+    0 calc(var(--progress-top-size) - 1px);
+  mask-position:
+    top center,
+    0 calc(var(--progress-top-size) - 1px);
+  -webkit-mask-size:
+    100% var(--progress-top-size),
+    100% max(0px, calc(100% - var(--progress-top-size) + 1px));
+  mask-size:
+    100% var(--progress-top-size),
+    100% max(0px, calc(100% - var(--progress-top-size) + 1px));
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+@utility vote-progress-body {
+  --progress-bottom-size: 99px;
   --progress-mask-mid: url("/svg/vote-column-masks/vote-progress-mask-mid.svg");
   --progress-mask-bottom: url("/svg/vote-column-masks/vote-progress-mask-bottom.svg");
 
-  @apply absolute w-full top-0 left-0;
-  -webkit-mask-image:
-    var(--progress-mask-top), var(--progress-mask-mid),
-    var(--progress-mask-bottom);
-  mask-image:
-    var(--progress-mask-top), var(--progress-mask-mid),
-    var(--progress-mask-bottom);
+  @apply w-full h-full;
+  -webkit-mask-image: var(--progress-mask-mid), var(--progress-mask-bottom);
+  mask-image: var(--progress-mask-mid), var(--progress-mask-bottom);
   -webkit-mask-position:
     top center,
-    0 calc(var(--progress-top-size) - 1px),
     bottom center;
   mask-position:
     top center,
-    0 calc(var(--progress-top-size) - 1px),
     bottom center;
   -webkit-mask-size:
-    100% var(--progress-top-size),
-    100%
-      calc(100% - var(--progress-top-size) - var(--progress-bottom-size) + 2px),
+    100% max(0px, calc(100% - var(--progress-bottom-size) + 1px)),
     100% var(--progress-bottom-size);
   mask-size:
-    100% var(--progress-top-size),
-    100%
-      calc(100% - var(--progress-top-size) - var(--progress-bottom-size) + 2px),
+    100% max(0px, calc(100% - var(--progress-bottom-size) + 1px)),
     100% var(--progress-bottom-size);
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+}
+
+.vote-progress.vote-progress-top-circle {
+  --progress-top-size: 143px;
+  --progress-mask-top: url("/svg/vote-column-masks/vote-progress-mask-top-circle.svg");
+}
+
+.vote-progress.vote-progress-top-diamond {
+  --progress-top-size: 125px;
+  --progress-mask-top: url("/svg/vote-column-masks/vote-progress-mask-top-diamond.svg");
+}
+
+.vote-progress.vote-progress-top-hexagon {
+  --progress-top-size: 125px;
+  --progress-mask-top: url("/svg/vote-column-masks/vote-progress-mask-top-hexagon.svg");
 }
 
 .vote-column.stroke-red::after {

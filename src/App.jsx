@@ -9,6 +9,7 @@ import GUI from "lil-gui";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { BookSpreadHtml } from "./Components/BookSpreadHtml";
+import useStoryStore from "./store/useStoryStore";
 
 const TOTAL_PAGES = 48;
 const COVER_DEPTH = 0.04;
@@ -529,6 +530,17 @@ const App = () => {
       .add(state, "rimIntensity", 0, 25, 0.5)
       .name("Rim Light")
       .onChange(update);
+
+    const votingState = {
+      totalVoters: useStoryStore.getState().totalVoters,
+      resetStory: () => useStoryStore.getState().resetRows(),
+    };
+    const votingFolder = gui.addFolder("Voting");
+    votingFolder
+      .add(votingState, "totalVoters", 10, 500, 5)
+      .name("Total Voters")
+      .onChange((value) => useStoryStore.getState().setTotalVoters(value));
+    votingFolder.add(votingState, "resetStory").name("Reset Story");
 
     return () => gui.destroy();
   }, []);
