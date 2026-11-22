@@ -13,10 +13,14 @@ const VOTE_BUTTONS = [
 export const BookSpreadHtml = ({ side, opacity = 1 }) => {
   useGSAP(() => {});
   const voteColor = useStoryStore((state) => state.voteColor);
+  const hoverColor = useStoryStore((state) => state.hoverColor);
   const resetRows = useStoryStore((state) => state.resetRows);
   const hasActiveRow = useStoryStore((state) =>
     state.rowStates.includes("active"),
   );
+  const countdown = useStoryStore((state) => state.countdown);
+  const isCountingDown = useStoryStore((state) => state.isCountingDown);
+  const hoveredColor = useStoryStore((state) => state.hoveredColor);
 
   const sharedStyle = {
     width: "800px",
@@ -57,23 +61,46 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
     );
   }
 
+  // return (
+  //   <div className="flex justify-between" style={sharedStyle}>
+  //     <div className="h-full w-auto grow bg-red"></div>
+  //     <div className="h-full w-auto grow bg-green"></div>
+  //     <div className="h-full w-auto grow bg-blue"></div>
+  //   </div>
+  // );
+
   return (
     <article
       style={sharedStyle}
       className="py-7 px-10 flex flex-col items-center justify-center"
     >
       {hasActiveRow ? (
-        <div className="flex gap-4">
-          {VOTE_BUTTONS.map(({ color, label, className }) => (
-            <button
-              key={color}
-              type="button"
-              onClick={() => voteColor(color)}
-              className={`pointer-events-auto cursor-pointer ${className} text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex gap-4">
+            {VOTE_BUTTONS.map(({ color, label, className }) => {
+              const isHovered = hoveredColor === color;
+              return (
+                <button
+                  key={color}
+                  type="button"
+                  onMouseEnter={() => hoverColor(color)}
+                  onClick={() => voteColor(color)}
+                  className={`pointer-events-auto cursor-pointer ${className} text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-all ${
+                    isHovered
+                      ? "scale-105 ring-4 ring-gray-dark shadow-md"
+                      : "opacity-85 hover:opacity-100"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+          {isCountingDown && (
+            <p className="text-xs font-semibold text-gray-dark tracking-wide uppercase">
+              Keuze over {countdown}s
+            </p>
+          )}
         </div>
       ) : (
         <button
@@ -103,7 +130,7 @@ const PageRow = ({ index, options, iconSize, type, shape }) => {
   } = options[selectedIndex] ?? options[0];
 
   if (status === "active") {
-    return <ActiveSlot text={text} shape={shape} color={color} />;
+    return <ActiveSlot text={text} shape={shape} defaultColor={color} />;
   }
 
   const isIncomplete = status === "incomplete";
@@ -117,13 +144,13 @@ const PageRow = ({ index, options, iconSize, type, shape }) => {
         <p className="filled-row-p shrink-0">{text}</p>
         <Slot
           icon={
-            Icon ? (
+            Icon && (
               <Icon
                 fillColor={"fill-bg"}
                 innerColor={"fill-gray-dark"}
                 strokeColor={"stroke-gray-dark"}
               />
-            ) : null
+            )
           }
           type={type}
           slotText={slotText}
@@ -154,11 +181,19 @@ const renderSvgShape = ({ tag: Tag, props }, extraProps = {}) => (
   <Tag {...props} {...extraProps} />
 );
 
-const ActiveSlot = ({ text, shape = "square", color = "var(--color-red)" }) => {
+const ActiveSlot = ({
+  text,
+  shape = "square",
+  defaultColor = "var(--color-red)",
+}) => {
   const bannerClipId = useId();
   const badgeClipId = useId();
   const badgeShape =
     badgeShapes.find((item) => item.shape === shape) ?? badgeShapes[0];
+
+  const countdown = useStoryStore((state) => state.countdown);
+  const hoveredColor = useStoryStore((state) => state.hoveredColor);
+  const color = hoveredColor ?? defaultColor;
 
   return (
     <div className="flex flex-col gap-5">
@@ -191,7 +226,7 @@ const ActiveSlot = ({ text, shape = "square", color = "var(--color-red)" }) => {
             })}
           </svg>
           <p className="text-lg font-bold relative z-1" style={{ color }}>
-            10
+            {countdown}
           </p>
         </div>
         <div
