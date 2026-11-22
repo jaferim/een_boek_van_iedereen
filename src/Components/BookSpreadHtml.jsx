@@ -4,9 +4,16 @@ import LineDivider from "./svgs/misc/LineDivider";
 import storyData, { badgeShapes } from "../utils/data";
 import useStoryStore from "../store/useStoryStore";
 
+const VOTE_BUTTONS = [
+  { color: "var(--color-red)", label: "Red", className: "bg-red" },
+  { color: "var(--color-blue)", label: "Blue", className: "bg-blue" },
+  { color: "var(--color-green)", label: "Green", className: "bg-green" },
+];
+
 export const BookSpreadHtml = ({ side, opacity = 1 }) => {
   useGSAP(() => {});
-  const advanceRow = useStoryStore((state) => state.advanceRow);
+  const voteColor = useStoryStore((state) => state.voteColor);
+  const resetRows = useStoryStore((state) => state.resetRows);
   const hasActiveRow = useStoryStore((state) =>
     state.rowStates.includes("active"),
   );
@@ -30,31 +37,16 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
           <LineDivider strokeColor={"stroke-gray"} />
         </header>
         <article className="h-3/4 flex flex-col gap-6">
-          {storyData.map(({ type, shape, chosenIconSize, options }, index) => {
-            const { icon: Icon, color, slotText, text } = options[1];
-
-            return (
-              <PageRow
-                key={type}
-                index={index}
-                icon={
-                  Icon ? (
-                    <Icon
-                      fillColor={"fill-bg"}
-                      innerColor={"fill-gray-dark"}
-                      strokeColor={"stroke-gray-dark"}
-                    />
-                  ) : null
-                }
-                type={type}
-                shape={shape}
-                color={color}
-                slotText={slotText}
-                text={text}
-                iconSize={chosenIconSize}
-              />
-            );
-          })}
+          {storyData.map(({ type, shape, chosenIconSize, options }, index) => (
+            <PageRow
+              key={type}
+              index={index}
+              options={options}
+              type={type}
+              shape={shape}
+              iconSize={chosenIconSize}
+            />
+          ))}
         </article>
         <footer className="annotation-wrapper">
           <h2 className="book-annotation">Het Boek van iedereen</h2>
@@ -70,30 +62,45 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
       style={sharedStyle}
       className="py-7 px-10 flex flex-col items-center justify-center"
     >
-      <button
-        type="button"
-        onClick={advanceRow}
-        className="pointer-events-auto cursor-pointer bg-red text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform"
-      >
-        {hasActiveRow ? "Next row" : "Reset"}
-      </button>
+      {hasActiveRow ? (
+        <div className="flex gap-4">
+          {VOTE_BUTTONS.map(({ color, label, className }) => (
+            <button
+              key={color}
+              type="button"
+              onClick={() => voteColor(color)}
+              className={`pointer-events-auto cursor-pointer ${className} text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={resetRows}
+          className="pointer-events-auto cursor-pointer bg-gray-dark text-bg text-sm font-medium px-8 py-4 rounded-lg active:scale-95 transition-transform"
+        >
+          Reset
+        </button>
+      )}
     </article>
   );
 };
 
-const PageRow = ({
-  index,
-  icon,
-  text,
-  slotText,
-  iconSize,
-  type,
-  shape,
-  color,
-}) => {
+const PageRow = ({ index, options, iconSize, type, shape }) => {
   const status = useStoryStore(
     (state) => state.rowStates[index] ?? "incomplete",
   );
+  const selectedIndex = useStoryStore(
+    (state) => state.selectedOptions[index] ?? 0,
+  );
+  const {
+    icon: Icon,
+    color,
+    slotText,
+    text,
+  } = options[selectedIndex] ?? options[0];
 
   if (status === "active") {
     return <ActiveSlot text={text} shape={shape} color={color} />;
@@ -108,7 +115,20 @@ const PageRow = ({
         className={`flex gap-3 items-center flex-wrap ${isIncomplete ? "invisible" : ""}`}
       >
         <p className="filled-row-p shrink-0">{text}</p>
-        <Slot icon={icon} type={type} slotText={slotText} iconSize={iconSize} />
+        <Slot
+          icon={
+            Icon ? (
+              <Icon
+                fillColor={"fill-bg"}
+                innerColor={"fill-gray-dark"}
+                strokeColor={"stroke-gray-dark"}
+              />
+            ) : null
+          }
+          type={type}
+          slotText={slotText}
+          iconSize={iconSize}
+        />
       </div>
       <LineDivider strokeColor={"stroke-gray-dark"} />
     </div>
