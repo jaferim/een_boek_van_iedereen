@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import storyData from "../utils/data";
 
-const COUNTDOWN_SECONDS = 15;
+const COUNTDOWN_SECONDS = 10;
 const DEFAULT_TOTAL_VOTERS = 100;
 const INITIAL_COLUMN_SHARE = 1 / 3.1;
 const VOTE_KEYS = ["red", "green", "blue"];

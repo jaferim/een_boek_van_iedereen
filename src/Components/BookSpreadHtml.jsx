@@ -4,6 +4,30 @@ import LineDivider from "./svgs/misc/LineDivider";
 import storyData, { badgeShapes } from "../utils/data";
 import useStoryStore from "../store/useStoryStore";
 
+const capitalize = (str) =>
+  str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+
+const formatWhereTitlePart = (option) => {
+  if (!option) return "?? ???";
+  const slot = option.slotText.replace(/\.$/, "");
+  if (/^(op|in|bij|aan|naar|te|onder|boven)\b/i.test(slot)) {
+    return slot;
+  }
+  const prep = option.text ? option.text.toLowerCase() : "";
+  return prep ? `${prep} ${slot}` : slot;
+};
+
+const getStoryTitle = (isWhoFilled, whoIndex, isWhereFilled, whereIndex) => {
+  const whoOption = isWhoFilled ? storyData[0]?.options?.[whoIndex] : null;
+  const whereOption = isWhereFilled
+    ? storyData[1]?.options?.[whereIndex]
+    : null;
+
+  const whoPart = whoOption ? capitalize(whoOption.slotText) : "???";
+  const wherePart = formatWhereTitlePart(whereOption);
+  return `${whoPart} ${wherePart}`;
+};
+
 const SHAPE_PROGRESS_TOP_CLASS = {
   circle: "vote-progress-top-circle",
   diamond: "vote-progress-top-diamond",
@@ -18,16 +42,16 @@ const VOTE_COLUMNS = [
     label: "Vote Red",
   },
   {
-    key: "green",
-    strokeClass: "stroke-green",
-    bgClass: "bg-green",
-    label: "Vote Green",
-  },
-  {
     key: "blue",
     strokeClass: "stroke-blue",
     bgClass: "bg-blue",
     label: "Vote Blue",
+  },
+  {
+    key: "green",
+    strokeClass: "stroke-green",
+    bgClass: "bg-green",
+    label: "Vote Green",
   },
 ];
 
@@ -46,6 +70,24 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
   );
   const votes = useStoryStore((state) => state.votes);
   const totalVoters = useStoryStore((state) => state.totalVoters);
+  const isWhoFilled = useStoryStore(
+    (state) => state.rowStates[0] === "filled-in",
+  );
+  const isWhereFilled = useStoryStore(
+    (state) => state.rowStates[1] === "filled-in",
+  );
+  const whoOptionIndex = useStoryStore(
+    (state) => state.selectedOptions[0] ?? 0,
+  );
+  const whereOptionIndex = useStoryStore(
+    (state) => state.selectedOptions[1] ?? 0,
+  );
+  const storyTitle = getStoryTitle(
+    isWhoFilled,
+    whoOptionIndex,
+    isWhereFilled,
+    whereOptionIndex,
+  );
 
   const sharedStyle = {
     width: "800px",
@@ -62,7 +104,7 @@ export const BookSpreadHtml = ({ side, opacity = 1 }) => {
       >
         <header className="annotation-wrapper">
           <LineDivider strokeColor={"stroke-gray"} />
-          <h1 className="book-annotation">Eeen Drak in een Donker Bos</h1>
+          <h1 className="book-annotation capitalize">{storyTitle}</h1>
           <LineDivider strokeColor={"stroke-gray"} />
         </header>
         <article className="h-3/4 flex flex-col gap-6">

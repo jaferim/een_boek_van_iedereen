@@ -447,7 +447,7 @@ const Book = ({
             bend2={bend2}
             zOffset={0}
             textures={paperTextures}
-            color="#f6f6f6"
+            color="#FAF6F0"
             faceSide={faceSide}
           >
             {isSpreadPage && (
